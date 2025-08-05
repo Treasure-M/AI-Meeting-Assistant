@@ -1,9 +1,9 @@
-# Use official Python base image
-FROM python:3.9-slim-buster
+# Use Python 3.9 with full Debian packages
+FROM python:3.9-bullseye
 
-# Install system dependencies
+# Install system dependencies with clean up in one RUN layer
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     ffmpeg \
     python3-dev \
     portaudio19-dev \
@@ -12,7 +12,7 @@ RUN apt-get update && \
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
+# First copy only requirements to leverage Docker cache
 COPY requirements.txt .
 
 # Install Python dependencies
@@ -21,8 +21,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# Explicitly set FFmpeg path for pydub
+# Set explicit paths for audio processing
 ENV PATH="/usr/bin/ffmpeg:${PATH}"
+ENV PYTHONPATH="/app:${PYTHONPATH}"
 
-# Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
+# Health check (optional but recommended)
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:10000/health || exit 1
+
+# Run the application
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--workers", "4", "app:app"]
