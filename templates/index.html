@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Meeting Summarizer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="theme-toggle">
+    <label class="switch">
+      <input type="checkbox" id="themeSwitch" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="container">
+     <!-- Toggle Button -->
+    <button id="toggleSidebar">☰</button>
+
+   
+    <aside class="sidebar closed" id="sidebar">
+      <h2>🗂️ History</h2>
+      <ul id="historyList"></ul>
+    </aside>
+
+    <main class="main-content">
+      <header class="navbar">
+        <div class="navbar-brand">
+          <span class="logo-icon">🗣️</span> Ai Meeting Summarizer
+        </div>
+        <nav class="navbar-nav">
+          <ul>
+            <li><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a></li>
+            <li><a href="/about" class="nav-link {% if request.path == '/about' %}active{% endif %}">About</a></li>
+            <li><a href="/contact" class="nav-link {% if request.path == '/contact' %}active{% endif %}">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
+      <p class="intro-message">
+         Transform your meetings with AI-powered transcription, summarization, and translation. 
+         Simply record or upload audio to get started!
+      </p>
+
+      <div class="card-row">
+        <div class="upload-card card" id="uploadZone">
+        <h3>🎙️ Voice Input</h3>
+        <form id="fileUploadForm">
+          <p>📁 Drag & Drop or click to upload audio</p>
+          <input type="file" name="audioFile" id="fileInput" accept=".mp3,.wav,.webm" required hidden />
+          <label for="fileInput" class="upload-label">Choose File</label>
+
+          <select name="targetLanguage" required>
+            <option value="">Select Translation Language</option>
+            <option value="english">English</option>
+            <option value="spanish">Spanish</option>
+            <option value="zulu">Zulu</option>
+            <option value="afrikaans">Afrikaans</option>
+            <option value="german">German</option>
+          </select>
+
+          <button type="submit">
+            <span class="btn-text">Start Processing</span>
+            <span class="loading-dots" style="display: none">
+              <span>.</span><span>.</span><span>.</span>
+            </span>
+          </button>
+        </form>
+      </div>
+       <!-- Record Section -->
+      <div class="record-card card">
+        <h3>🎙️ Record Audio</h3>
+        <form id="recordUploadForm">
+          <input type="text" id="recordingTitle" placeholder="Enter title of meeting..." />
+
+          <select name="targetLanguage" required>
+            <option value="">Select Translation Language</option>
+            <option value="english">English</option>
+            <option value="spanish">Spanish</option>
+            <option value="zulu">Zulu</option>
+            <option value="afrikaans">Afrikaans</option>
+            <option value="german">German</option>
+          </select>
+
+          <div class="record-controls">
+            <button type="button" id="startRecording">Start Recording</button>
+            <button type="button" id="stopRecording" disabled>Stop Recording</button>
+          </div>
+          <div class="playback-container">
+            <audio id="recordingPlayback" controls style="display:none;"></audio>
+          </div>
+          <div class="record-controls">
+            <button type="button" id="uploadRecording" disabled>Upload Recording</button>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+
+
+      <div id="results">
+        <div class="card">
+          <h3>📝 Transcription</h3>
+          <p id="transcriptionText">Your transcription will appear here.</p>
+        </div>
+
+        <div class="card">
+          <h3>💡 Summary</h3>
+          <p id="summaryText">Your meeting summary will appear here.</p>
+        </div>
+
+        <div class="card">
+          <h3>📌 Key Points</h3>
+          <ul id="keyPoints">
+            <li>Key points will be listed here.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🌐 Translation</h3>
+          <p id="translatedText">Your translation will appear here.</p>
+        </div>
+
+        <div class="actions card">
+            <button onclick="downloadText()" class="download-btn">Download All Text</button>
+            <a id="audioDownload" class="download-btn">Download Audio</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Theme toggle functionality
+    const themeSwitch = document.getElementById("themeSwitch");
+    themeSwitch.checked = localStorage.getItem("theme") === "light";
+    setTheme(themeSwitch.checked ? "light" : "dark");
+    themeSwitch.addEventListener("change", () => {
+      const theme = themeSwitch.checked ? "light" : "dark";
+      setTheme(theme);
+      localStorage.setItem("theme", theme);
+    });
+
+    function setTheme(mode) {
+      document.body.className = mode;
+    }
+
+    // File upload form submission
+    document.getElementById("fileUploadForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const submitBtn = this.querySelector("button");
+      const text = submitBtn.querySelector(".btn-text");
+      const dots = submitBtn.querySelector(".loading-dots");
+
+      submitBtn.disabled = true;
+      text.style.display = "none";
+      dots.style.display = "inline-block";
+
+      fetch("/process", { method: "POST", body: formData })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            alert(data.error);
+          } else {
+            displayResults(data);
+            loadHistory();
+          }
+        })
+        .catch((error) => {
+          alert("Error: " + error.message);
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          text.style.display = "inline-block";
+          dots.style.display = "none";
+        });
+    });
+
+    // Initialize history on load
+    window.onload = loadHistory;
+  </script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

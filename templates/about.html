@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>About Us - AI Meeting Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="theme-toggle">
+    <label class="switch">
+      <input type="checkbox" id="themeSwitch" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="container">
+    <main class="main-content">
+      <header class="navbar">
+        <div class="navbar-brand">
+          <span class="logo-icon">🗣️</span> AI Assistant
+        </div>
+        <nav class="navbar-nav">
+          <ul>
+            <li><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a></li>
+            <li><a href="/about" class="nav-link {% if request.path == '/about' %}active{% endif %}">About</a></li>
+            <li><a href="/contact" class="nav-link {% if request.path == '/contact' %}active{% endif %}">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
+      <h1 class="project-title">💡 About the AI Meeting Assistant</h1>
+
+      <div class="card about-app-card">
+        <h3>🚀 Our Vision</h3>
+        <p>The AI Meeting Assistant is designed to revolutionize how you manage your meetings. In today's fast-paced world, capturing every detail, summarizing discussions, and ensuring clear communication can be challenging. Our application leverages cutting-edge Artificial Intelligence to automate the tedious tasks of transcription, summarization, and translation, allowing you to focus on what truly matters: engaging in productive conversations.</p>
+        <p>From transcribing spoken words into accurate text, to distilling lengthy discussions into concise summaries and actionable key points, and even breaking down language barriers with seamless translation, our assistant is your ultimate tool for enhanced productivity and clarity.</p>
+        <p>We believe in making technology accessible and impactful, simplifying complex processes to empower individuals and teams. This application is a testament to that commitment, aiming to streamline your workflow and ensure no valuable insight from your meetings is ever lost.</p>
+      </div>
+
+      <div class="card inventors-card">
+        <h3>🧑‍💻 Meet the Inventors</h3>
+        <div class="inventors-grid">
+          <div class="inventor-profile">
+            <img src="{{ url_for('static', filename='images/Treasure.jpg') }}" alt="Inventor 1" class="inventor-img">
+            <h4>Treasure Mashabane</h4>
+            <p><strong>Role:</strong> Lead AI Architect</p>
+            <p>Specializes in natural language processing and machine learning models for transcription and summarization.</p>
+          </div>
+          <div class="inventor-profile">
+            <img src="{{ url_for('static', filename='images/Reba.jpg') }}" alt="Inventor 2" class="inventor-img">
+            <h4>Mudau Rebafenyi</h4>
+            <p><strong>Role:</strong> Frontend Developer</p>
+            <p>Responsible for the intuitive user interface and responsive design of the application.</p>
+          </div>
+          <div class="inventor-profile">
+            <img src="{{ url_for('static', filename='images/Thabo.jpg') }}" alt="Inventor 3" class="inventor-img">
+            <h4>Thabo Mavundla</h4>
+            <p><strong>Role:</strong> Backend Engineer</p>
+            <p>Developed the robust server-side logic and API integrations for seamless data processing.</p>
+          </div>
+          <div class="inventor-profile">
+            <img src="{{ url_for('static', filename='images/Ditshego2.jpg') }}" alt="Inventor 4" class="inventor-img">
+            <h4>Ditshego Kgwadi</h4>
+            <p><strong>Role:</strong> UX/UI Designer</p>
+            <p>Focused on creating a user-friendly and aesthetically pleasing experience for all users.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="customMessageBox" class="message-modal" style="display: none;">
+    <div class="message-modal-content">
+      <span class="close-button">&times;</span>
+      <p id="messageBoxText"></p>
+      <button class="modal-ok-button">OK</button>
+    </div>
+  </div>
+
+  <script>
+    const themeSwitch = document.getElementById("themeSwitch");
+    const customMessageBox = document.getElementById("customMessageBox");
+    const messageBoxText = document.getElementById("messageBoxText");
+    const closeButton = customMessageBox.querySelector(".close-button");
+    const modalOkButton = customMessageBox.querySelector(".modal-ok-button");
+
+    // === CUSTOM MESSAGE BOX (REPLACES ALERT/CONFIRM) ===
+    function showMessageBox(message) {
+      messageBoxText.innerText = message;
+      customMessageBox.style.display = "block";
+    }
+
+    closeButton.onclick = function() {
+      customMessageBox.style.display = "none";
+    }
+
+    modalOkButton.onclick = function() {
+      customMessageBox.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      if (event.target == customMessageBox) {
+        customMessageBox.style.display = "none";
+      }
+    }
+
+    // Override window.alert
+    window.alert = showMessageBox;
+    // Override window.confirm (simple version, always returns true for now for this app's context)
+    window.confirm = (message) => {
+        showMessageBox(message);
+        return true; // For now, assume confirmation. For actual confirmation, a more complex modal is needed.
+    };
+
+
+    // === THEME TOGGLE ===
+    themeSwitch.checked = localStorage.getItem("theme") === "light";
+    setTheme(themeSwitch.checked ? "light" : "dark");
+    themeSwitch.addEventListener("change", () => {
+      const theme = themeSwitch.checked ? "light" : "dark";
+      setTheme(theme);
+      localStorage.setItem("theme", theme);
+    });
+
+    function setTheme(mode) {
+      document.body.className = mode;
+    }
+
+    // === LOAD HISTORY (for sidebar consistency) ===
+    function loadHistory() {
+      fetch("/get-history")
+        .then((res) => res.json())
+        .then((history) => {
+          const list = document.getElementById("historyList");
+          list.innerHTML = "";
+          if (history.length === 0) {
+            list.innerHTML = "<li>No history yet</li>";
+            return;
+          }
+          history.forEach((item) => {
+            const li = document.createElement("li");
+            const date = new Date(item.timestamp);
+            li.textContent = `${date.toLocaleString()} - ${item.filename}`;
+
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "🗑️";
+            delBtn.title = "Delete this entry";
+            delBtn.className = "delete-btn";
+
+            delBtn.onclick = (e) => {
+              e.stopPropagation();
+              showMessageBox("Delete this history entry?");
+              fetch("/delete-history", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: item.filename, timestamp: item.timestamp }),
+              })
+              .then(res => res.json())
+              .then(data => {
+                if (data.error) showMessageBox("Error: " + data.error);
+                else loadHistory();
+              })
+              .catch(() => showMessageBox("Failed to delete entry"));
+            };
+
+            li.appendChild(delBtn);
+            list.appendChild(li);
+          });
+        })
+        .catch(error => {
+            console.error("Error loading history:", error);
+            document.getElementById("historyList").innerHTML = "<li>Failed to load history</li>";
+        });
+    }
+
+    window.onload = loadHistory;
+  </script>
+</body>
+</html>

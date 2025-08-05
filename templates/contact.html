@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contact & Help - AI Meeting Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="theme-toggle">
+    <label class="switch">
+      <input type="checkbox" id="themeSwitch" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="container">
+
+    <main class="main-content">
+      <header class="navbar">
+        <div class="navbar-brand">
+          <span class="logo-icon">🗣️</span> AI Assistant
+        </div>
+        <nav class="navbar-nav">
+          <ul>
+            <li><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a></li>
+            <li><a href="/about" class="nav-link {% if request.path == '/about' %}active{% endif %}">About</a></li>
+            <li><a href="/contact" class="nav-link {% if request.path == '/contact' %}active{% endif %}">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
+      <h1 class="project-title">📞 Contact Us & Help</h1>
+
+      <div class="card contact-form-card">
+        <h3>✉️ Send Us an Enquiry</h3>
+        <form id="contactForm" action="https://formspree.io/f/mzzvezwn" method="POST">
+          <div class="form-group">
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Your Email:</label>
+            <input type="email" id="email" name="_replyto" required> </div>
+          <div class="form-group">
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="_subject" required> </div>
+          <div class="form-group">
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" rows="6" required></textarea>
+          </div>
+          <button type="submit" class="btn-primary">
+            <span class="btn-text">Submit Enquiry</span>
+            <span class="loading-dots" style="display: none">
+              <span>.</span><span>.</span><span>.</span>
+            </span>
+          </button>
+          <input type="hidden" name="_next" value="http://127.0.0.1:5000/contact?success=true" />
+        </form>
+        <div id="formMessage" class="message-box" style="display: none;"></div>
+      </div>
+
+      <div class="card faq-section-card">
+        <h3>❓ Frequently Asked Questions & Help</h3>
+        <div class="accordion">
+          <div class="accordion-item">
+            <button class="accordion-header">
+              How do I upload an audio file?
+              <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+              <p>On the Home page, you can either drag and drop your MP3 or WAV audio file into the designated upload area, or click the "Choose File" button to select a file from your device. Once selected, choose your desired translation language and click "Start Processing".</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              What audio formats are supported?
+              <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+              <p>Currently, the AI Meeting Assistant supports MP3 and WAV audio file formats.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              How long does the processing take?
+              <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+              <p>Processing time depends on the length and quality of your audio file. Shorter files (e.g., a few minutes) will be processed much faster than longer ones. A loading animation will indicate that processing is underway.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              Can I download the transcription and summary?
+              <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+              <p>Yes, after processing, you will see a "Download All Text" button which allows you to download a text file containing the transcription, summary, key points, and translation. If the original audio file was uploaded, you can also download it using the "Download Audio" button.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              My file failed to upload/process. What should I do?
+              <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+              <p>Please check the following:</p>
+              <ul>
+                <li>Ensure your internet connection is stable.</li>
+                <li>Verify that the file format is either MP3 or WAV.</li>
+                <li>The file size might be too large. Try a smaller file if possible.</li>
+                <li>If the issue persists, please use the contact form above to describe your issue in detail.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="customMessageBox" class="message-modal" style="display: none;">
+    <div class="message-modal-content">
+      <span class="close-button">&times;</span>
+      <p id="messageBoxText"></p>
+      <button class="modal-ok-button">OK</button>
+    </div>
+  </div>
+
+  <script>
+    const themeSwitch = document.getElementById("themeSwitch");
+    const customMessageBox = document.getElementById("customMessageBox");
+    const messageBoxText = document.getElementById("messageBoxText");
+    const closeButton = customMessageBox.querySelector(".close-button");
+    const modalOkButton = customMessageBox.querySelector(".modal-ok-button");
+    const contactForm = document.getElementById("contactForm");
+    const formMessage = document.getElementById("formMessage");
+
+    // === CUSTOM MESSAGE BOX (REPLACES ALERT/CONFIRM) ===
+    function showMessageBox(message) {
+      messageBoxText.innerText = message;
+      customMessageBox.style.display = "block";
+    }
+
+    closeButton.onclick = function() {
+      customMessageBox.style.display = "none";
+    }
+
+    modalOkButton.onclick = function() {
+      customMessageBox.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      if (event.target == customMessageBox) {
+        customMessageBox.style.display = "none";
+      }
+    }
+
+    // Override window.alert
+    window.alert = showMessageBox;
+    // Override window.confirm (simple version, always returns true for now for this app's context)
+    window.confirm = (message) => {
+        showMessageBox(message);
+        return true; // For now, assume confirmation. For actual confirmation, a more complex modal is needed.
+    };
+
+
+    // === THEME TOGGLE ===
+    themeSwitch.checked = localStorage.getItem("theme") === "light";
+    setTheme(themeSwitch.checked ? "light" : "dark");
+    themeSwitch.addEventListener("change", () => {
+      const theme = themeSwitch.checked ? "light" : "dark";
+      setTheme(theme);
+      localStorage.setItem("theme", theme);
+    });
+
+    function setTheme(mode) {
+      document.body.className = mode;
+    }
+
+    // === CONTACT FORM SUBMISSION (Adjusted for Formspree) ===
+    contactForm.addEventListener("submit", function (e) {
+      const submitBtn = this.querySelector("button");
+      const text = submitBtn.querySelector(".btn-text");
+      const dots = submitBtn.querySelector(".loading-dots");
+
+      submitBtn.disabled = true;
+      text.style.display = "none";
+      dots.style.display = "inline-block";
+
+      // Formspree will handle the actual submission via the 'action' attribute.
+      // We just need to ensure the loading state is shown.
+      // The browser will redirect or handle the response from Formspree.
+    });
+
+
+    // === ACCORDION LOGIC ===
+    const accordionHeaders = document.querySelectorAll(".accordion-header");
+
+    accordionHeaders.forEach(header => {
+      header.addEventListener("click", () => {
+        const accordionItem = header.parentElement;
+        const accordionContent = header.nextElementSibling;
+        const icon = header.querySelector(".accordion-icon");
+
+        if (accordionContent.style.maxHeight) {
+          accordionContent.style.maxHeight = null;
+          accordionItem.classList.remove("active");
+          icon.textContent = "▼";
+        } else {
+          // Close all other open accordions
+          document.querySelectorAll(".accordion-item.active").forEach(openItem => {
+            if (openItem !== accordionItem) {
+              openItem.classList.remove("active");
+              openItem.querySelector(".accordion-content").style.maxHeight = null;
+              openItem.querySelector(".accordion-icon").textContent = "▼";
+            }
+          });
+
+          accordionContent.style.maxHeight = accordionContent.scrollHeight + "px";
+          accordionItem.classList.add("active");
+          icon.textContent = "▲";
+        }
+      });
+    });
+
+    // === LOAD HISTORY (for sidebar consistency) ===
+    function loadHistory() {
+      fetch("/get-history")
+        .then((res) => res.json())
+        .then((history) => {
+          const list = document.getElementById("historyList");
+          list.innerHTML = "";
+          if (history.length === 0) {
+            list.innerHTML = "<li>No history yet</li>";
+            return;
+          }
+          history.forEach((item) => {
+            const li = document.createElement("li");
+            const date = new Date(item.timestamp);
+            li.textContent = `${date.toLocaleString()} - ${item.filename}`;
+
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "🗑️";
+            delBtn.title = "Delete this entry";
+            delBtn.className = "delete-btn";
+
+            delBtn.onclick = (e) => {
+              e.stopPropagation();
+              // Using custom message box instead of confirm()
+              showMessageBox("Delete this history entry?");
+              // In a real app, you'd add a confirmation logic to the custom message box
+              // For this demo, we'll proceed as if confirmed.
+              fetch("/delete-history", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: item.filename, timestamp: item.timestamp }),
+              })
+              .then(res => res.json())
+              .then(data => {
+                if (data.error) showMessageBox("Error: " + data.error);
+                else loadHistory();
+              })
+              .catch(() => showMessageBox("Failed to delete entry"));
+            };
+
+            li.appendChild(delBtn);
+            // Note: displayHistoryItem is not defined in contact.html, so this click will do nothing
+            // li.onclick = () => displayHistoryItem(item);
+            list.appendChild(li);
+          });
+        })
+        .catch(error => {
+            console.error("Error loading history:", error);
+            document.getElementById("historyList").innerHTML = "<li>Failed to load history</li>";
+        });
+    }
+
+    window.onload = () => {
+        loadHistory();
+        // Check for success parameter in URL after Formspree redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            formMessage.style.display = "block";
+            formMessage.classList.add('success');
+            formMessage.innerText = "Thank you for your enquiry! We will get back to you soon.";
+            // Optionally, remove the success parameter from the URL to prevent message on refresh
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    };
+  </script>
+</body>
+</html>

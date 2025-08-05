@@ -1,0 +1,906 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  transition: background 0.3s, color 0.3s;
+  min-height: 100vh;
+}
+
+body.dark {
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  color: white;
+}
+
+body.light {
+  background: #f2f2f2;
+  color: #222;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  position: relative
+}
+
+.sidebar {
+  width: 250px;
+  background: #111;
+  color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 4px solid #00ffe5;
+  transition: transform 0.3s ease;
+}
+
+.sidebar.closed {
+  transform: translateX(-100%);
+  left: -35px;
+
+}
+
+.sidebar h2 {
+  color: #0ff;
+  margin-bottom: 20px;
+}
+#toggleSidebar {
+  position: absolute;
+  top: 10px;
+  left: 25px;
+  background: #34495e;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+#historyList {
+  list-style: none;
+  padding: 0;
+}
+
+#historyList li {
+  padding: 10px;
+  background: #222;
+  margin: 8px 0;
+  cursor: pointer;
+  border-left: 5px solid #0ff;
+  transition: background 0.3s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#historyList li:hover {
+  background: #444;
+}
+
+.main-content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  text-align: center;
+}
+
+/* Header/Navbar Styling */
+.navbar {
+  background: rgba(0, 0, 0, 0.4); /* Slightly transparent for modern look */
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #00ffe5;
+  margin-bottom: 30px; /* Space between navbar and page title */
+  border-radius: 8px; /* Slightly rounded corners */
+}
+
+.navbar-brand {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #00ffe5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-brand .logo-icon {
+  font-size: 2rem; /* Larger icon */
+}
+
+.navbar-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 25px; /* Space between nav items */
+}
+
+.navbar-nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 400;
+  transition: color 0.3s ease;
+}
+
+.navbar-nav a:hover {
+  color: #00ffe5;
+}
+
+
+.project-title {
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  color: #00ffe5;
+}
+
+/* Common Card Styling */
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 255, 229, 0.3);
+  margin: 20px auto;
+  text-align: left; /* Align content inside cards to left */
+}
+
+.card h3 {
+  color: #00ffe5;
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center; /* Center card titles */
+}
+
+/* Upload Card (Voice Input Section) */
+.upload-card {
+  max-width: 600px;
+}
+
+.upload-card.dragover {
+  outline: 3px dashed #0ff;
+}
+
+.upload-card p {
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+.upload-label {
+  display: block;
+  background: #0ff;
+  color: black;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px auto;
+  max-width: 200px; /* Make the button smaller */
+  text-align: center;
+}
+
+form select,
+form button {
+  padding: 10px;
+  margin: 10px auto; /* Center form elements */
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 300px; /* Limit width of select and button */
+  border: none;
+  display: block; /* Make them block elements for centering */
+}
+
+form button {
+  background: #0ff;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+form button:hover {
+  background: #00c8b4;
+}
+
+.loading-dots span {
+  font-size: 24px;
+  animation: blink 1.4s infinite;
+  margin-left: 2px;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+/* Results Sections */
+#results {
+  margin-top: 40px;
+}
+
+#results .card {
+  margin-bottom: 20px; /* Space between result cards */
+}
+
+#transcriptionText,
+#summaryText,
+#translatedText {
+  white-space: pre-wrap; /* Preserves whitespace and wraps text */
+  text-align: left;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid #0ff;
+  max-height: 200px; /* Limit height for scrollability */
+  overflow-y: auto;
+}
+
+#keyPoints {
+  list-style: inside; /* Puts bullets inside the content area */
+  padding-left: 10px;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid #0ff;
+  max-height: 200px; /* Limit height for scrollability */
+  overflow-y: auto;
+}
+
+#keyPoints li {
+  margin-bottom: 8px;
+}
+
+.actions {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.download-btn {
+  background: #4CAF50;
+  color: white;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.3s ease;
+  text-decoration: none; /* Remove underline from anchor tag */
+}
+
+.download-btn:hover {
+  background: #3e8e41;
+}
+
+#audioDownload {
+  display: none;
+}
+
+/* === Theme Switch Toggle === */
+.theme-toggle {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.4s;
+  border-radius: 30px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #0ff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: #ff4c4c;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: color 0.3s;
+  padding: 5px; /* Add some padding for easier clicking */
+}
+
+.delete-btn:hover {
+  color: #ff0000;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 4px solid #00ffe5;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+
+  .project-title {
+    font-size: 2rem;
+  }
+
+  .upload-card, .card {
+    padding: 20px;
+  }
+
+  form select, form button, .upload-label {
+    max-width: 100%;
+  }
+
+  .navbar {
+    flex-direction: column;
+    padding: 10px 20px;
+  }
+
+  .navbar-nav ul {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+}
+
+/* --- Contact Form Specific Styles --- */
+.contact-form-card {
+  max-width: 700px;
+  margin-bottom: 40px;
+}
+
+.contact-form-card .form-group {
+  margin-bottom: 20px;
+}
+
+.contact-form-card label {
+  display: block;
+  margin-bottom: 8px;
+  color: #00ffe5;
+  font-weight: 600;
+}
+
+.contact-form-card input[type="text"],
+.contact-form-card input[type="email"],
+.contact-form-card textarea {
+  width: calc(100% - 20px); /* Account for padding */
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #00ffe5;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+}
+
+.contact-form-card textarea {
+  resize: vertical; /* Allow vertical resizing */
+  min-height: 120px;
+}
+
+.contact-form-card input:focus,
+.contact-form-card textarea:focus {
+  outline: none;
+  border-color: #0ff;
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+.contact-form-card .btn-primary {
+  width: auto;
+  padding: 12px 25px;
+  margin-top: 10px;
+  display: inline-flex; /* To center text and dots */
+}
+
+/* --- FAQ / Accordion Specific Styles --- */
+.faq-section-card {
+  max-width: 700px;
+}
+
+.accordion {
+  width: 100%;
+}
+
+.accordion-item {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid #00ffe5;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden; /* Hide content initially */
+}
+
+.accordion-item.active {
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.accordion-header {
+  background: #1a1a1a;
+  color: #00ffe5;
+  padding: 15px 20px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.3s ease;
+}
+
+.accordion-header:hover {
+  background: #2a2a2a;
+}
+
+.accordion-icon {
+  font-size: 1.2rem;
+  margin-left: 10px;
+  transition: transform 0.3s ease;
+}
+
+.accordion-item.active .accordion-icon {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  padding: 0 20px;
+  background: rgba(0, 0, 0, 0.3);
+  max-height: 0; /* Hidden by default */
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+}
+
+.accordion-content p {
+  padding: 15px 0;
+  margin: 0;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.accordion-content ul {
+  padding-left: 20px;
+  margin: 0;
+  color: #ccc;
+}
+
+.accordion-content li {
+  margin-bottom: 5px;
+}
+
+/* --- Form Submission Message Box --- */
+.message-box {
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.message-box.success {
+  background-color: #4CAF50; /* Green */
+  color: white;
+}
+
+.message-box.error {
+  background-color: #f44336; /* Red */
+  color: white;
+}
+
+/* --- Custom Message Box Modal (Replaces alert/confirm) --- */
+.message-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1001; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+  padding-top: 60px;
+}
+
+.message-modal-content {
+  background-color: #2c5364; /* Dark blue background */
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 30px;
+  border: 1px solid #00ffe5;
+  border-radius: 12px;
+  width: 80%; /* Could be more responsive */
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+.message-modal-content p {
+  font-size: 1.1rem;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.message-modal .close-button {
+  color: #aaa;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.message-modal .close-button:hover,
+.message-modal .close-button:focus {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-ok-button {
+  background: #00ffe5;
+  color: #000;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.modal-ok-button:hover {
+  background: #00c8b4;
+}
+
+/* Responsive adjustments for contact page */
+@media (max-width: 768px) {
+  .contact-form-card input[type="text"],
+  .contact-form-card input[type="email"],
+  .contact-form-card textarea {
+    width: 100%; /* Full width on small screens */
+  }
+}
+
+/* --- About Page Specific Styles --- */
+.about-app-card,
+.inventors-card {
+  max-width: 800px;
+  margin-bottom: 40px;
+}
+
+.about-app-card p {
+  text-align: left;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  color: #ccc;
+}
+
+.inventors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+  justify-items: center; /* Center profiles in their grid cells */
+}
+
+.inventor-profile {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #00ffe5;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 255, 229, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.inventor-profile:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 255, 229, 0.4);
+}
+
+.inventor-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border: 3px solid #00ffe5;
+  box-shadow: 0 0 8px rgba(0, 255, 229, 0.6);
+}
+
+.inventor-profile h4 {
+  color: #00ffe5;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1.25rem;
+}
+
+.inventor-profile p {
+  font-size: 0.95rem;
+  color: #ccc;
+  line-height: 1.4;
+  margin-bottom: 5px;
+  text-align: center; /* Ensure text within profile is centered */
+}
+
+/* Responsive adjustments for about page */
+@media (max-width: 600px) {
+  .inventors-grid {
+    grid-template-columns: 1fr; /* Stack profiles on very small screens */
+  }
+}
+/* Highlight active navigation link */
+.navbar-nav .nav-link.active {
+  color: #fff; /* White for active link */
+  font-weight: 600;
+  border-bottom: 2px solid #fff; /* Underline effect */
+  padding-bottom: 5px;
+}
+
+.card-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.card-row .card {
+  flex: 1 1 450px; /* Responsive sizing */
+  max-width: 500px;
+}
+
+/* record Card (Voice Recording Input Section) */
+.record-card {
+  max-width: 600px;
+}
+
+.record-card.dragover {
+  outline: 3px dashed #0ff;
+}
+
+.record-card p {
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+.record-label {
+  display: block;
+  background: #0ff;
+  color: black;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px auto;
+  max-width: 200px; /* Make the button smaller */
+  text-align: center;
+}
+
+form select,
+form button {
+  padding: 10px;
+  margin: 10px auto; /* Center form elements */
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 300px; /* Limit width of select and button */
+  border: none;
+  display: block; /* Make them block elements for centering */
+}
+
+form button {
+  background: #0ff;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+form button:hover {
+  background: #00c8b4;
+}
+
+/* Start button - blue */
+.record-card button.start-btn {
+  background: #007bff;  /* bootstrap blue */
+  color: white;
+}
+
+.record-card button.start-btn:hover {
+  background: #0056b3;
+}
+
+/* Stop button - red */
+.record-card button.stop-btn {
+  background: #dc3545;  /* bootstrap red */
+  color: white;
+}
+
+.record-card button.stop-btn:hover {
+  background: #a71d2a;
+}
+/* Buttons inside record card */
+.record-card button {
+  padding: 10px;
+  margin: 10px auto;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 300px;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+/*Recording title*/
+.record-card input {
+  display: block;       /* make input block level */
+  max-width: 300px;     /* limit width */
+  width: 100%;          /* responsive width */
+  margin: 0 auto;       /* center horizontally */
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #0ff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  box-sizing: border-box; /* include padding in width */
+}
+
+#startRecording {
+  background: #007bff;  /* blue */
+  color: white;
+}
+
+#startRecording:hover {
+  background: #0056b3;
+}
+
+#stopRecording {
+  background: #dc3545;  /* red */
+  color: white;
+}
+
+#stopRecording:hover {
+  background: #a71d2a;
+}
+.playback-container {
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+#recordingPlayback {
+  width: 100%;
+  max-width: 300px; /* Adjust this as needed */
+}
+
+.intro-message {
+  text-align: center;
+  margin: 0 auto 30px;
+  max-width: 600px;
+  color: var(--text-secondary); /* or your preferred color */
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+/* Updated Container and Sidebar Styles */
+.container {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.sidebar {
+  width: 300px;
+  background: #111;
+  color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 4px solid #00ffe5;
+  transform: translateX(-100%);
+  position: fixed;
+  height: 100vh;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.sidebar:not(.closed) {
+  transform: translateX(0);
+}
+
+.main-content {
+  flex: 1;
+  padding: 40px;
+  margin-left: 0;
+  transition: margin-left 0.3s ease;
+  width: 100%;
+}
+
+.sidebar:not(.closed) + .main-content {
+  margin-left: 300px;
+}
+
+#toggleSidebar {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 101;
+  background: #34495e;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
