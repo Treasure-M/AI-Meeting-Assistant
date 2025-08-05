@@ -1,22 +1,24 @@
-# Use current stable Debian version
-FROM python:3.9-bookworm
+# Use current Debian stable
+FROM python:3.11-bookworm
 
-# Install system dependencies
-RUN apt-get update && \
+# Install system dependencies with retry logic
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
     ffmpeg \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Alternative audio backend (no portaudio needed)
-RUN pip install soundfile>=0.12.1
-
+# Install Python dependencies
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application
 COPY . .
 
-# Configure pydub
+# Set explicit FFmpeg path
 ENV PATH="/usr/bin/ffmpeg:${PATH}"
 
+# Run the app
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
